@@ -1,4 +1,4 @@
-package cz.clovekvtisni.coordinator.android.util;
+package cz.fhucho.android.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -10,6 +10,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -164,7 +168,21 @@ public class SimpleDiskCache {
 	}
 
 	private String toInternalKey(String key) {
-		return Utils.md5(key);
+		return md5(key);
+	}
+	
+	private String md5(String s) {
+		try {
+			MessageDigest m = MessageDigest.getInstance("MD5");
+			m.update(s.getBytes("UTF-8"));
+			byte[] digest = m.digest();
+			BigInteger bigInt = new BigInteger(1, digest);
+			return bigInt.toString(16);
+		} catch (NoSuchAlgorithmException e) {
+			throw new AssertionError();
+		} catch (UnsupportedEncodingException e) {
+			throw new AssertionError();
+		}
 	}
 
 	private class CacheOutputStream extends FilterOutputStream {
