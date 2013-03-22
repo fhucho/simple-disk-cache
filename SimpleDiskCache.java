@@ -41,7 +41,7 @@ public class SimpleDiskCache {
 	public static synchronized SimpleDiskCache open(File dir, int appVersion, long maxSize)
 			throws IOException {
 		if (usedDirs.contains(dir)) {
-			throw new RuntimeException("Cache dir " + dir.getAbsolutePath() + " was used before.");
+			throw new IllegalStateException("Cache dir " + dir.getAbsolutePath() + " was used before.");
 		}
 
 		usedDirs.add(dir);
@@ -91,11 +91,11 @@ public class SimpleDiskCache {
 		return true;
 	}
 
-	public CacheOutputStream openStream(String key) throws IOException {
+	public OutputStream openStream(String key) throws IOException {
 		return openStream(key, new HashMap<String, Serializable>());
 	}
 
-	public CacheOutputStream openStream(String key, Map<String, ? extends Serializable> metadata)
+	public OutputStream openStream(String key, Map<String, ? extends Serializable> metadata)
 			throws IOException {
 		DiskLruCache.Editor editor = diskLruCache.edit(toInternalKey(key));
 		try {
@@ -114,7 +114,7 @@ public class SimpleDiskCache {
 
 	public void put(String key, InputStream is, Map<String, Serializable> annotations)
 			throws IOException {
-		CacheOutputStream os = null;
+		OutputStream os = null;
 		try {
 			os = openStream(key, annotations);
 			IOUtils.copy(is, os);
@@ -129,7 +129,7 @@ public class SimpleDiskCache {
 
 	public void put(String key, String value, Map<String, ? extends Serializable> annotations)
 			throws IOException {
-		CacheOutputStream cos = null;
+		OutputStream cos = null;
 		try {
 			cos = openStream(key, annotations);
 			cos.write(value.getBytes());
