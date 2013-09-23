@@ -52,12 +52,7 @@ public class SimpleDiskCache {
 	public InputStreamEntry getInputStream(String key) throws IOException {
 		DiskLruCache.Snapshot snapshot = diskLruCache.get(toInternalKey(key));
 		if (snapshot == null) return null;
-
-		try {
-			return new InputStreamEntry(snapshot, readMetadata(snapshot));
-		} finally {
-			snapshot.close();
-		}
+		return new InputStreamEntry(snapshot, readMetadata(snapshot));
 	}
 
 	public BitmapEntry getBitmap(String key) throws IOException {
