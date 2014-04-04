@@ -8,13 +8,13 @@ Every cache entry has a value and metadata, the metadata are representad as `Map
 
 ##### Open
 
-Open the cache with `SimpleDiskCache.open(dir, appVersion, capacityBytes)`. This cannot be called twice with the same dir, otherwise `RuntimeException` will be thrown mercilessly.
+Open the cache with `SimpleDiskCache.open(dir, appVersion, capacityBytes)`. This cannot be called twice with the same dir, otherwise `RuntimeException` will be thrown.
 
 ##### Put
 
-To put a String to the cache, call `cache.put(key, string, metadata)`. Or just `cache.put(key, string)`. That's up to you.
+To put a String to the cache, call `cache.put(key, string, metadata)` or just `cache.put(key, string)`.
 
-To pour the content of an InputStream to the cache, just call `cache.put(key, inputStream, metadata)`. Don't forget to close the stream.
+To pour the content of an InputStream to the cache, call `cache.put(key, inputStream, metadata)`. Don't forget to close the stream.
 
 To put something else to the cache, call `cache.openStream(key, metadata)` to get an `OutputStream`, write something to it and close it. The stream is buffered.
 
@@ -22,4 +22,8 @@ To put something else to the cache, call `cache.openStream(key, metadata)` to ge
 
 `cache.getString(key)` returns `StringEntry` or `null`. `StringEntry` contains string and metadata. For bitmaps, use `cache.getBitmap(key)`.
 
-Use `cache.getInputStream(key)` to get an `InputStreamEntry` and close it when you're done please.
+Use `cache.getInputStream(key)` to get an `InputStreamEntry` and close it when you're done.
+
+### License
+
+Apache 2.0.
