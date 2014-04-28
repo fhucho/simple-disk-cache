@@ -24,17 +24,23 @@ import org.apache.commons.io.IOUtils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.jakewharton.DiskLruCache;
+import com.jakewharton.disklrucache.DiskLruCache;
 
+/**
+ * Adapted from https://github.com/fhucho/simple-disk-cache
+ * License Apache 2.0
+ */
 public class SimpleDiskCache {
 
 	private static final int VALUE_IDX = 0;
 	private static final int METADATA_IDX = 1;
 	private static final List<File> usedDirs = new ArrayList<File>();
 
-	private final DiskLruCache diskLruCache;
+	private com.jakewharton.disklrucache.DiskLruCache diskLruCache;
+	private int mAppVersion;
 
 	private SimpleDiskCache(File dir, int appVersion, long maxSize) throws IOException {
+		mAppVersion = appVersion;
 		diskLruCache = DiskLruCache.open(dir, appVersion, 2, maxSize);
 	}
 
@@ -47,6 +53,21 @@ public class SimpleDiskCache {
 		usedDirs.add(dir);
 
 		return new SimpleDiskCache(dir, appVersion, maxSize);
+	}
+
+	/**
+	 * User should be sure there are no outstanding operations.
+	 * @throws IOException
+	 */
+	public void clear() throws IOException {
+		File dir = diskLruCache.getDirectory();
+		long maxSize = diskLruCache.getMaxSize();
+		diskLruCache.delete();
+		diskLruCache = DiskLruCache.open(dir, mAppVersion, 2, maxSize);
+	}
+
+	public DiskLruCache getCache() {
+		return diskLruCache;
 	}
 
 	public InputStreamEntry getInputStream(String key) throws IOException {
@@ -77,11 +98,11 @@ public class SimpleDiskCache {
 			snapshot.close();
 		}
 	}
-	
+
 	public boolean contains(String key) throws IOException {
 		DiskLruCache.Snapshot snapshot = diskLruCache.get(toInternalKey(key));
 		if(snapshot==null) return false;
-		
+
 		snapshot.close();
 		return true;
 	}
@@ -165,7 +186,7 @@ public class SimpleDiskCache {
 	private String toInternalKey(String key) {
 		return md5(key);
 	}
-	
+
 	private String md5(String s) {
 		try {
 			MessageDigest m = MessageDigest.getInstance("MD5");
